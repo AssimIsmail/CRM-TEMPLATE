@@ -1,0 +1,171 @@
+<div>
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Tableau de bord</a>
+        </li>
+        <li class="before:mr-2 before:content-['/'] rtl:before:ml-2">
+            <span>Analytique</span>
+        </li>
+    </ul>
+    <div class="pt-5">
+        <div class="mb-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+            <div class="panel h-full sm:col-span-2 lg:col-span-1">
+                <div class="mb-5 flex items-center justify-between dark:text-white-light">
+                    <h5 class="text-lg font-semibold">Statistiques</h5>
+                    <!-- <div hlMenu class="dropdown">
+                        <button type="button" hlMenuButton>
+                            <icon-horizontal-dots class="text-black/70 hover:!text-primary dark:text-white/70" />
+                        </button>
+                        <ul *hlMenuItems @toggleAnimation class="ltr:right-0 rtl:left-0">
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">Cette semaine</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">La semaine dernière</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">Ce mois-ci</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">Le mois dernier</a>
+                            </li>
+                        </ul>
+                    </div> -->
+                </div>
+                <div class="grid gap-8 text-sm font-bold text-[#515365] sm:grid-cols-2">
+                    <div>
+                        <div>
+                            <div>Nombre de clients</div>
+                            <div class="text-lg text-[#f8538d]">
+                                {{ totalVisit.series[0]?.data[0] || 0 }}
+                            </div>
+                        </div>
+                        <div class="overflow-hidden">
+                            <apx-chart
+                                [series]="totalVisit.series"
+                                [chart]="totalVisit.chart"
+                                [stroke]="totalVisit.stroke"
+                                [colors]="totalVisit.colors"
+                                [grid]="totalVisit.grid"
+                                [tooltip]="totalVisit.tooltip"
+                                class="rounded-lg bg-white dark:bg-black"
+                            >
+                                <div class="grid min-h-[58px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                                    <span
+                                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"
+                                    ></span>
+                                </div>
+                            </apx-chart>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <div>Nombre de clients close</div>
+                            <div class="text-lg text-[#f8538d]">
+                                {{ paidVisit.series[0]?.data[0] || 0 }}
+                            </div>
+                        </div>
+                        <div class="overflow-hidden">
+                            <apx-chart
+                                [series]="paidVisit.series"
+                                [chart]="paidVisit.chart"
+                                [stroke]="paidVisit.stroke"
+                                [colors]="paidVisit.colors"
+                                [grid]="paidVisit.grid"
+                                [tooltip]="paidVisit.tooltip"
+                                class="rounded-lg bg-white dark:bg-black"
+                            >
+                                <div class="grid min-h-[58px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                                    <span
+                                        class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"
+                                    ></span>
+                                </div>
+                            </apx-chart>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel h-full">
+                <div class="mb-5 flex items-center justify-between dark:text-white-light">
+                    <h5 class="text-lg font-semibold">Pourcentage de clients avec le statut 'Close'</h5>
+                    <!-- <div hlMenu class="dropdown">
+                        <button type="button" hlMenuButton>
+                            <icon-horizontal-dots class="text-black/70 hover:!text-primary dark:text-white/70" />
+                        </button>
+                        <ul *hlMenuItems @toggleAnimation class="ltr:right-0 rtl:left-0">
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">Cette semaine</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">La semaine dernière</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">Ce mois-ci</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">Le mois dernier</a>
+                            </li>
+                        </ul>
+                    </div> -->
+                </div>
+                <div class="my-10 text-3xl font-bold text-[#e95f2b]">
+                    <span class="ltr:mr-2 rtl:ml-2">{{ closedClientPercentage | number:'1.0-2' }}%</span>
+                    <icon-trending-up class="inline text-success" />
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="h-5 w-full overflow-hidden rounded-full bg-dark-light p-1 shadow-3xl dark:bg-dark-light/10 dark:shadow-none">
+                        <div
+                            class="relative h-full w-full rounded-full bg-gradient-to-r from-[#4361ee] to-[#805dca] before:absolute before:inset-y-0 before:m-auto before:h-2 before:w-2 before:rounded-full before:bg-white ltr:before:right-0.5 rtl:before:left-0.5"
+                            [style.width.%]="closedClientPercentage"
+                        ></div>
+                    </div>
+                    <span class="ltr:ml-5 rtl:mr-5 dark:text-white-light">{{ closedClientPercentage | number:'1.0-2' }}%</span>
+                </div>
+            </div>
+        </div>
+        <div class="mb-6 grid gap-6 lg:grid-cols-2">
+            <div class="panel h-full p-0 lg:col-span-2">
+                <div class="mb-5 flex items-start justify-between border-b border-[#e0e6ed] p-5 dark:border-[#1b2e4b] dark:text-white-light">
+                    <h5 class="text-lg font-semibold">Visiteurs uniques</h5>
+                    <div hlMenu class="dropdown">
+                        <button type="button" hlMenuButton>
+                            <icon-horizontal-dots class="text-black/70 hover:!text-primary dark:text-white/70" />
+                        </button>
+                        <ul *hlMenuItems @toggleAnimation class="ltr:right-0 rtl:left-0">
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">Voir</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">Mettre à jour</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;" *hlMenuItem="let menuItem">Télécharger</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="overflow-hidden">
+                    <apx-chart
+                        [series]="uniqueVisitor.series"
+                        [chart]="uniqueVisitor.chart"
+                        [dataLabels]="uniqueVisitor.dataLabels"
+                        [stroke]="uniqueVisitor.stroke"
+                        [colors]="uniqueVisitor.colors"
+                        [plotOptions]="uniqueVisitor.plotOptions"
+                        [legend]="uniqueVisitor.legend"
+                        [grid]="uniqueVisitor.grid"
+                        [xaxis]="uniqueVisitor.xaxis"
+                        [yaxis]="uniqueVisitor.yaxis"
+                        [fill]="uniqueVisitor.fill"
+                        [tooltip]="uniqueVisitor.tooltip"
+                        class="rounded-lg bg-white dark:bg-black"
+                    >
+                        <div class="grid min-h-[360px] place-content-center bg-white-light/30 dark:bg-dark dark:bg-opacity-[0.08]">
+                            <span class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-black !border-l-transparent dark:border-white"></span>
+                        </div>
+                    </apx-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

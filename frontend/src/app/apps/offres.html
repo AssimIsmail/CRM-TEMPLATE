@@ -1,0 +1,114 @@
+<div>
+    <div class="panel border-[#e0e6ed] px-0 pb-1.5 dark:border-[#1b2e4b]">
+        <div class="datatable invoice-table">
+            <div class="mb-4.5 flex flex-col gap-5 px-5 md:flex-row md:items-center">
+                <div class="flex items-center gap-2">
+                    <button type="button" class="btn btn-danger gap-2" (click)="deleteRow()">
+                        <icon-trash-lines />
+                        Supprimer
+                    </button>
+                    <a routerLink="/apps/invoice/add" class="btn btn-primary gap-2">
+                        <icon-plus />
+                        Ajouter Offre
+                    </a>
+                </div>
+                <div class="ltr:ml-auto rtl:mr-auto">
+                    <input [(ngModel)]="search" type="text" class="form-input" placeholder="Rechercher..." />
+                </div>
+            </div>
+
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Nom de famille
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Téléphone
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Adresse
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr *ngFor="let client of items">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ client.last_name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ client.email }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ client.phone }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ client.address }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <div class="flex justify-center gap-2">
+                                <a [routerLink]="['/apps/invoice/edit', client.id]" class="text-indigo-600 hover:text-indigo-900">
+                                    <icon-edit class="h-4.5 w-4.5" />
+                                </a>
+                                <a [routerLink]="['/apps/invoice/preview', client.id]" class="text-blue-600 hover:text-blue-900">
+                                    <icon-eye />
+                                </a>
+                                <button type="button" class="text-red-600 hover:text-red-900" (click)="deleteRow(client.id)">
+                                    <icon-trash-lines />
+                                </button>
+                                <button type="button" class="text-green-600 hover:text-green-900" (click)="openEnregistrementModal(client.id)">
+                                    <icon-plus />
+                                </button>
+                                <button type="button" class="text-blue-600 hover:text-blue-900" (click)="openRecordingsModal(client.id)">
+                                    <icon-microphone-off />
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Structure -->
+<ngx-custom-modal #enregistrementModal class="no-footer">
+    <ng-template #modalHeader>
+        <div class="!font-medium">Créer un Enregistrement</div>
+    </ng-template>
+    <ng-template #modalBody>
+        <form (ngSubmit)="createEnregistrement()" #enregistrementForm="ngForm" class="text-sm">
+            <div class="mb-5">
+                <label for="url">URL:</label>
+                <input type="file" id="url" accept=".mp3" (change)="onFileChange($event)" class="form-input" required />
+            </div>
+            <button type="submit">Create Enregistrement</button>
+        </form>
+    </ng-template>
+</ngx-custom-modal>
+
+<!-- Recordings Modal Structure -->
+<ngx-custom-modal #recordingsModal class="no-footer">
+    <ng-template #modalHeader>
+        <div class="!font-medium">Enregistrements pour le client</div>
+    </ng-template>
+    <ng-template #modalBody>
+        <ul>
+            <li *ngFor="let enregistrement of clientEnregistrements" class="flex items-center gap-4 mb-2">
+                <audio controls>
+                    <source [src]="'http://localhost:8081' + '/' + enregistrement.url" type="audio/mp3">
+                    Your browser does not support the audio element.
+                </audio>
+                <button type="button" class="btn btn-danger" (click)="deleteEnregistrement(enregistrement.id)">
+                    Supprimer
+                </button>
+            </li>
+        </ul>
+    </ng-template>
+</ngx-custom-modal>

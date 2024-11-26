@@ -1,0 +1,56 @@
+<div class="container mx-auto p-4">
+    <div class="flex flex-wrap items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold">Questions</h2>
+        <div class="relative w-full max-w-md">
+            <input
+                type="text"
+                placeholder="Rechercher des questions"
+                class="w-full form-input py-2 px-4 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                [(ngModel)]="searchQuery"
+                name="searchQuery"
+                (ngModelChange)="searchQuestions()"
+            />
+            <div class="absolute top-1/2 transform -translate-y-1/2 right-3">
+                <icon-search class="text-gray-500" />
+            </div>
+        </div>
+    </div>
+    <div class="bg-white shadow-md rounded overflow-hidden">
+        <table class="min-w-full bg-white">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="py-2 px-4 text-left font-medium text-gray-600">Titre</th>
+                    <th class="py-2 px-4 text-left font-medium text-gray-600">Contenu</th>
+                    <th class="py-2 px-4 text-center font-medium text-gray-600">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let question of filteredQuestionsList" key="question.id">
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-4">{{ question.titre }}</td>
+                        <td class="py-2 px-4">{{ question.contenu }}</td>
+                        <td class="py-2 px-4 text-center">
+                            <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleResponses(question)">
+                                Voir les réponses
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="question.showResponses" class="bg-gray-50">
+                        <td colspan="3" class="p-4">
+                            <div class="p-4 bg-white rounded-lg shadow-inner">
+                                <ul class="space-y-2">
+                                    <li *ngFor="let response of question.responses" class="py-1 text-gray-700 flex items-start">
+                                        <span class="text-yellow-500 mr-2">★</span>
+                                        <span class="font-serif">
+                                            <strong>{{ response.userName }}:</strong> {{ response.contenu }}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,180 @@
+﻿<div [ngClass]="{ 'dark text-white-dark': store.semidark }">
+    <nav class="sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300">
+        <div class="h-full bg-white dark:bg-[#0e1726]">
+            <div class="flex items-center justify-between px-4 py-3">
+                <a routerLink="/" class="main-logo flex shrink-0 items-center">
+                    <img class="ml-[5px] w-14 flex-none" src="/assets/images/logos.png" alt="" />
+                    <span class="align-middle text-2xl font-semibold dark:text-white-light lg:inline ltr:ml-1.5 rtl:mr-1.5">
+                        <span style="color: #49296C; font-size: 1rem;font-weight: bold;">YO</span>
+                        <span style="color: #70BF48; font-size: 1rem;font-weight: bold;">NETWORK</span>
+                    </span>
+                </a>
+                <a
+                    href="javascript:;"
+                    class="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 hover:text-primary dark:text-white-light dark:hover:bg-dark-light/10 rtl:rotate-180"
+                    (click)="storeData.dispatch({ type: 'toggleSidebar'})"
+                >
+                    <icon-carets-down class="m-auto rotate-90" />
+                </a>
+            </div>
+            <ng-scrollbar class="relative !h-[calc(100vh-80px)]" appearance="compact">
+                <ul class="relative space-y-0.5 p-4 py-0 font-semibold">
+                    <li class="nav-item">
+                        <a routerLink="/accueil" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-home shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Accueil' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/analytics" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-bar-chart-alt-2 shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Analyse' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="apps/centres" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-building-house shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i> <!-- Changement de l'icône à 'imeuble' -->
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Centre' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/apps/projects" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-task shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3"> {{'Project' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/apps/status" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-mail-send shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Status'  | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/apps/users" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-user shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'User' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/apps/offres" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-file-blank shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Offre' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="accordion menu nav-item">
+                        <button
+                            type="button"
+                            class="nav-link group w-full"
+                            [ngClass]="{ active: activeDropdown.includes('Calendrier') }"
+                            (click)="toggleAccordion('Calendrier')"
+                        >
+                        <div class="flex items-center">
+                            <i class='bx bx-calendar shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                            <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Calendrier' | translate}} </span></div>
+                            <div [ngClass]="{ 'rtl:rotate-90 -rotate-90': !activeDropdown.includes('Calendrier') }">
+                                <icon-caret-down />
+                            </div>
+                        </button>
+                        <div [@slideDownUp]="!activeDropdown.includes('Calendrier')" class="accordion-content">
+                            <ul class="sub-menu text-gray-500">
+                                <li>
+                                    <a routerLink="/apps/calendar" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">{{ 'pour moi' | translate }}</a>
+                                </li>
+                                <li>
+                                    <a routerLink="/apps/calendarautres" routerLinkActive="active" (click)="toggleMobileMenu()">{{ 'Pour les autres' | translate }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/apps/todolist" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-list-check shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Tâche' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/apps/notes" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-note shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Remarque' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <!-- <li class="accordion menu nav-item">
+                        <button
+                            type="button"
+                            class="nav-link group w-full"
+                            [ngClass]="{ active: activeDropdown.includes('invoice') }"
+                            (click)="toggleAccordion('invoice')"
+                        >
+                        <div class="flex items-center">
+                            <i class='bx bx-file-blank shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                            <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Facture' | translate}}</span>
+                        </div>
+                            <div [ngClass]="{ 'rtl:rotate-90 -rotate-90': !activeDropdown.includes('invoice') }">
+                                <icon-caret-down />
+                            </div>
+                        </button>
+                        <div [@slideDownUp]="!activeDropdown.includes('invoice')" class="accordion-content">
+                            <ul class="sub-menu text-gray-500">
+                                <li>
+                                    <a routerLink="/apps/invoice/list" routerLinkActive="active" (click)="toggleMobileMenu()">{{ 'list' | translate }}</a>
+                                </li>
+                                <li>
+                                    <a routerLink="/apps/invoice/preview" routerLinkActive="active" (click)="toggleMobileMenu()">{{ 'preview' | translate }}</a>
+                                </li>
+                                <li>
+                                    <a routerLink="/apps/invoice/add" routerLinkActive="active" (click)="toggleMobileMenu()">{{ 'add' | translate }}</a>
+                                </li>
+                                <li>
+                                    <a routerLink="/apps/invoice/edit" routerLinkActive="active" (click)="toggleMobileMenu()">{{ 'edit' | translate }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li> -->
+                    <li class="nav-item">
+                        <a routerLink="/apps/documentation" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-book-open shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Documentation' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/apps/questionnaire" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-question-mark shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Questionnaire' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/apps/chat" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                            <div class="flex items-center">
+                                <i class='bx bx-chat shrink-0 group-hover:!text-primary' style="font-size: 19px;"></i>
+                                <span class="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">{{'Discussion' | translate}}</span>
+                            </div>
+                        </a>
+                    </li>
+                   
+                </ul>
+            </ng-scrollbar>
+        </div>
+    </nav>
+</div>

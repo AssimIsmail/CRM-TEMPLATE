@@ -1,0 +1,167 @@
+<div>
+    <div class="flex flex-wrap items-center justify-between gap-4">
+        <h2 class="text-xl">Questionnaire</h2>
+        <div class="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+            <div class="flex gap-3">
+                <div>
+                    <button type="button" class="btn btn-primary" (click)="editQuestion()">
+                        <icon-user-plus class="ltr:mr-2 rtl:ml-2" />
+                        Ajouter une Question
+                    </button>
+                </div>
+                <div>
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary p-2"
+                        [ngClass]="{ 'bg-primary text-white': displayType === 'list' }"
+                        (click)="displayType = 'list'"
+                    >
+                        <icon-list-check />
+                    </button>
+                </div>
+                <div>
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary p-2"
+                        [ngClass]="{ 'bg-primary text-white': displayType === 'grid' }"
+                        (click)="displayType = 'grid'"
+                    >
+                        <icon-layout-grid />
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative">
+                <input
+                    type="text"
+                    placeholder="Rechercher des Questions"
+                    class="peer form-input py-2 ltr:pr-11 rtl:pl-11"
+                    [(ngModel)]="searchQuery"
+                    name="searchQuery"
+                    (ngModelChange)="searchQuestions()"
+                />
+                <div class="absolute top-1/2 -translate-y-1/2 peer-focus:text-primary ltr:right-[11px] rtl:left-[11px]">
+                    <icon-search class="mx-auto" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel mt-5 overflow-hidden border-0 p-0">
+        <ng-container *ngIf="displayType === 'list'">
+            <div class="table-responsive">
+                <table class="table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Titre</th>
+                            <th>Contenu</th>
+                            <th>Date de Création</th>
+                            <th class="!text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let question of filteredQuestionsList" key="question.id">
+                            <tr>
+                                <td>{{ question.titre }}</td>
+                                <td>{{ question.contenu }}</td>
+                                <td class="whitespace-nowrap">{{ question.dateCreation | date:'short' }}</td>
+                                <td>
+                                    <div class="flex items-center justify-center gap-4">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="editQuestion(question)">Modifier</button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteQuestion(question)">Supprimer</button>
+                                        <button *ngIf="question.userId !== getCurrentUserId()" type="button" class="btn btn-sm btn-outline-secondary" (click)="openReponseModal(question.id)">Répondre</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+        </ng-container>
+    </div>
+    <ng-container *ngIf="displayType === 'grid'">
+        <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            <ng-container *ngFor="let question of filteredQuestionsList" key="question.id">
+                <div class="relative overflow-hidden rounded-md bg-white text-center shadow dark:bg-[#1c232f]">
+                    <div class="rounded-t-md bg-white/40 bg-[url('/assets/images/notification-bg.png')] bg-cover bg-center p-6 pb-0">
+                        <!-- Supprimez ou commentez cette section si vous ne voulez pas utiliser 'path' -->
+                        <!--
+                        <ng-container *ngIf="question.path">
+                            <img class="mx-auto max-h-40 w-4/5 object-contain" [src]="'/assets/images/' + question.path" />
+                        </ng-container>
+                        -->
+                    </div>
+                    <div class="relative -mt-10 px-6 pb-24">
+                        <div class="rounded-md bg-white px-2 py-4 shadow-md dark:bg-gray-900">
+                            <div class="text-xl">{{ question.titre }}</div>
+                            <div class="text-white-dark">{{ question.contenu }}</div>
+                            <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex-auto">
+                                    <div class="text-info">{{ question.dateCreation | date:'short' }}</div>
+                                    <div>Date de Création</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-0 mt-6 flex w-full gap-4 p-6 ltr:left-0 rtl:right-0">
+                        <button type="button" class="btn btn-outline-primary w-1/2" (click)="editQuestion(question)">Modifier</button>
+                        <button type="button" class="btn btn-outline-danger w-1/2" (click)="deleteQuestion(question)">Supprimer</button>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </ng-container>
+
+    <!-- add question modal -->
+    <ngx-custom-modal #addQuestionModal class="no-footer">
+        <ng-template #modalHeader>
+            <div class="!font-medium">{{ params.controls['id'].value ? 'Modifier la Question' : 'Ajouter une Question' }}</div>
+        </ng-template>
+        <ng-template #modalBody>
+            <form [formGroup]="params" class="text-sm" (ngSubmit)="saveQuestion()" ngNativeValidate>
+                <div class="mb-5">
+                    <label for="titre">Titre</label>
+                    <input id="titre" type="text" placeholder="Entrez le Titre" class="form-input" formControlName="titre" />
+                </div>
+                <div class="mb-5">
+                    <label for="contenu">Contenu</label>
+                    <textarea
+                        id="contenu"
+                        placeholder="Entrez le Contenu"
+                        class="form-textarea min-h-[130px] resize-none"
+                        formControlName="contenu"
+                        rows="5"
+                    ></textarea>
+                </div>
+                <div class="mt-8 flex items-center justify-end">
+                    <button type="button" class="btn btn-outline-danger" (click)="addQuestionModal.close()">Annuler</button>
+                    <button type="submit" class="btn btn-primary ltr:ml-4 rtl:mr-4">{{ params.controls['id'].value ? 'Mettre à jour' : 'Ajouter' }}</button>
+                </div>
+            </form>
+        </ng-template>
+    </ngx-custom-modal>
+
+    <!-- Add response modal -->
+    <ngx-custom-modal #repondreModal class="no-footer">
+        <ng-template #modalHeader>
+            <div class="!font-medium">Répondre à la Question</div>
+        </ng-template>
+        <ng-template #modalBody>
+            <form [formGroup]="reponseParams" class="text-sm" (ngSubmit)="saveReponse()" ngNativeValidate>
+                <div class="mb-5">
+                    <label for="contenu">Contenu de la Réponse</label>
+                    <textarea
+                        id="contenu"
+                        placeholder="Entrez votre réponse"
+                        class="form-textarea min-h-[130px] resize-none"
+                        formControlName="contenu"
+                        rows="5"
+                    ></textarea>
+                </div>
+                <div class="mt-8 flex items-center justify-end">
+                    <button type="button" class="btn btn-outline-danger" (click)="repondreModal.close()">Annuler</button>
+                    <button type="submit" class="btn btn-primary ltr:ml-4 rtl:mr-4">Envoyer</button>
+                </div>
+            </form>
+        </ng-template>
+    </ngx-custom-modal>
+</div>

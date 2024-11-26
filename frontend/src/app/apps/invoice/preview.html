@@ -1,0 +1,66 @@
+<div class="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
+    <h2 class="text-2xl font-bold mb-4 text-center">Récapitulatif du Client</h2>
+    <table class="w-full text-sm text-left text-gray-500">
+        <tbody>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Prénom:</td>
+                <td class="py-2">{{ client.first_name }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Nom de famille:</td>
+                <td class="py-2">{{ client.last_name }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Email:</td>
+                <td class="py-2">{{ client.email }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Téléphone:</td>
+                <td class="py-2">{{ client.phone }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Cellulaire:</td>
+                <td class="py-2">{{ client.otherphone }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Adresse:</td>
+                <td class="py-2">{{ client.address }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Projet:</td>
+                <td class="py-2">{{ getProjectName(client.projectId ?? 0) }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Statut:</td>
+                <td class="py-2">{{ getStatusName(client.statusId ?? 0) }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Prospecteur:</td>
+                <td class="py-2">{{ getUserName(client.prospecteurId ?? 0) }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Vendeur:</td>
+                <td class="py-2">{{ getUserName(client.vendeurId ?? 0) }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 font-medium text-gray-900">Commentaire du prospecteur:</td>
+                <td class="py-2">{{ client.commantaire_prospecteur }}</td>
+            </tr>
+            <tr>
+                <td class="py-2 font-medium text-gray-900">Commentaire du vendeur:</td>
+                <td class="py-2">{{ client.commantaire_vendeur }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="mt-6 text-center">
+        <button type="button" class="btn btn-primary inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mr-2" (click)="goBack()">
+            <icon-arrow-left class="shrink-0 ltr:mr-2 rtl:ml-2" />
+            Retourner
+        </button>
+        <button [routerLink]="['/apps/invoice/edit', client.id]" class="btn btn-primary inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+            <icon-edit class="shrink-0 ltr:mr-2 rtl:ml-2" />
+            Éditer
+        </button>
+    </div>
+</div>
