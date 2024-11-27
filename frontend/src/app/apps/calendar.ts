@@ -93,6 +93,9 @@ export class CalendarComponent {
             select: (event: any) => {
                 this.editDate(event);
             },
+            eventDrop: (info: any) => {
+                this.updateEventDate(info);
+            },
             locale: 'fr',
         };
     }
@@ -254,5 +257,28 @@ export class CalendarComponent {
 
     someOtherMethod() {
         console.log('User in someOtherMethod:', this.eventService.user);
+    }
+
+    updateEventDate(info: any) {
+        const updatedEvent: Event = {
+            id: info.event.id,
+            start: this.dateFormat(info.event.start),
+            end: this.dateFormat(info.event.end),
+            title: info.event.title,
+            description: info.event.extendedProps?.description || '',
+            type: info.event.classNames ? info.event.classNames[0] : 'primary',
+            userId: this.eventService.user?.id
+        };
+
+        this.eventService.updateEvent(updatedEvent.id, updatedEvent).subscribe(
+            () => {
+                this.showMessage('Event date has been updated successfully.');
+                this.getEvents();
+            },
+            (error) => {
+                console.error('Update Event Date Error:', error);
+                this.showMessage('Failed to update event date.', 'error');
+            }
+        );
     }
 }

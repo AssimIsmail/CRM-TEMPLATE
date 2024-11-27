@@ -13,6 +13,8 @@ const documentRoutes = require('./document.routes');
 const noteRoutes = require('./note.routes'); 
 const tacheRoutes = require('./tache.routes'); 
 const projectStatusRoutes = require('./projectStatus.routes'); 
+const contactRoutes = require('./contact.routes'); 
+const messageRoutes = require('./message.routes'); 
 const router = express.Router();
 
 //router.use(authenticateToken);
@@ -30,5 +32,7 @@ router.use('/documents', documentRoutes);
 router.use('/notes', noteRoutes); 
 router.use('/taches', tacheRoutes); 
 router.use('/project-status', projectStatusRoutes); 
+router.use('/contacts', contactRoutes); 
+router.use('/messages', messageRoutes); 
 
 module.exports = router;

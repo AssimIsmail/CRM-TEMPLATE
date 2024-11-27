@@ -11,7 +11,8 @@ const Document = require('./models/document.model');
 const Note = require('./models/note.model');
 const Tache = require('./models/tache.model');
 const ProjectStatus = require('./models/project_status.model');
-
+const Contact = require('./models/contact.model');
+const Message = require('./models/message.model');
 // User and Centre Relationship
 // A Centre can have many Users
 Centre.hasMany(User, { foreignKey: 'centreId', as: 'users' });
@@ -98,3 +99,12 @@ Note.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 // User and Tache Relationship
 User.hasMany(Tache, { foreignKey: 'userId', as: 'taches' });
 Tache.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+// Relation User ↔ Contact
+User.hasMany(Contact, { foreignKey: 'user_id', as: 'contacts' });
+Contact.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+// Relation User ↔ Message (from_user_id et to_user_id)
+User.hasMany(Message, { foreignKey: 'from_user_id', as: 'sentMessages' });
+User.hasMany(Message, { foreignKey: 'to_user_id', as: 'receivedMessages' });
+Message.belongsTo(User, { foreignKey: 'from_user_id', as: 'sender' });
+Message.belongsTo(User, { foreignKey: 'to_user_id', as: 'receiver' });

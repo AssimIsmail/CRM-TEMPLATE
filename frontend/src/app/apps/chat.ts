@@ -2,14 +2,34 @@ import { Component, ViewChild } from '@angular/core';
 import { toggleAnimation } from 'src/app/shared/animations';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { Store } from '@ngrx/store';
+import { UserService } from 'src/app/service/user.service';
+import { User } from '../models/user';
+import { map } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { ContactService } from 'src/app/service/contact.service';
+import { Contact } from '../models/contact';
+import { MessageService } from 'src/app/service/message.service';
+
+// Extend the Contact interface
+interface ExtendedContact extends Contact {
+    first_name?: string;
+    last_name?: string;
+    profile?: string;
+}
 
 @Component({
     templateUrl: './chat.html',
     animations: [toggleAnimation],
 })
 export class ChatComponent {
-    constructor(public storeData: Store<any>) {
+    constructor(
+        public storeData: Store<any>,
+        private userService: UserService,
+        private contactService: ContactService,
+        private messageService: MessageService
+    ) {
         this.initStore();
+        this.loadCurrentUser();
     }
     store: any;
     async initStore() {
@@ -19,7 +39,6 @@ export class ChatComponent {
                 this.store = d;
             });
     }
-
     @ViewChild('scrollable') scrollable!: NgScrollbar;
     isShowUserChat = false;
     isShowChatMenu = false;
@@ -29,276 +48,117 @@ export class ChatComponent {
         path: 'profile-34.jpeg',
         designation: 'Software Developer',
     };
-    contactList = [
-        {
-            userId: 1,
-            name: 'Nia Hillyer',
-            path: 'profile-16.jpeg',
-            time: '2:09 PM',
-            preview: 'How do you do?',
-            messages: [
-                {
-                    fromUserId: 0,
-                    toUserId: 1,
-                    text: 'Hi, I am back from vacation',
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 1,
-                    text: 'How are you?',
-                    time: '',
-                },
-                {
-                    fromUserId: 1,
-                    toUserId: 0,
-                    text: 'Welcom Back',
-                    time: '',
-                },
-                {
-                    fromUserId: 1,
-                    toUserId: 0,
-                    text: 'I am all well',
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 1,
-                    text: 'Coffee?',
-                    time: '',
-                },
-            ],
-            active: true,
-        },
-        {
-            userId: 2,
-            name: 'Sean Freeman',
-            path: 'profile-1.jpeg',
-            time: '12:09 PM',
-            preview: 'I was wondering...',
-            messages: [
-                {
-                    fromUserId: 0,
-                    toUserId: 2,
-                    text: 'Hello',
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 2,
-                    text: "It's me",
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 2,
-                    text: 'I have a question regarding project.',
-                    time: '',
-                },
-            ],
-            active: false,
-        },
-        {
-            userId: 3,
-            name: 'Alma Clarke',
-            path: 'profile-2.jpeg',
-            time: '1:44 PM',
-            preview: 'I’ve forgotten how it felt before',
-            messages: [
-                {
-                    fromUserId: 0,
-                    toUserId: 3,
-                    text: 'Hey Buddy.',
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 3,
-                    text: "What's up",
-                    time: '',
-                },
-                {
-                    fromUserId: 3,
-                    toUserId: 0,
-                    text: 'I am sick',
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 3,
-                    text: 'Not comming to office today.',
-                    time: '',
-                },
-            ],
-            active: true,
-        },
-        {
-            userId: 4,
-            name: 'Alan Green',
-            path: 'profile-3.jpeg',
-            time: '2:06 PM',
-            preview: 'But we’re probably gonna need a new carpet.',
-            messages: [
-                {
-                    fromUserId: 0,
-                    toUserId: 4,
-                    text: 'Hi, collect your check',
-                    time: '',
-                },
-                {
-                    fromUserId: 4,
-                    toUserId: 0,
-                    text: 'Ok, I will be there in 10 mins',
-                    time: '',
-                },
-            ],
-            active: true,
-        },
-        {
-            userId: 5,
-            name: 'Shaun Park',
-            path: 'profile-4.jpeg',
-            time: '2:05 PM',
-            preview: 'It’s not that bad...',
-            messages: [
-                {
-                    fromUserId: 0,
-                    toUserId: 3,
-                    text: 'Hi, I am back from vacation',
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 3,
-                    text: 'How are you?',
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 5,
-                    text: 'Welcom Back',
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 5,
-                    text: 'I am all well',
-                    time: '',
-                },
-                {
-                    fromUserId: 5,
-                    toUserId: 0,
-                    text: 'Coffee?',
-                    time: '',
-                },
-            ],
-            active: false,
-        },
-        {
-            userId: 6,
-            name: 'Roxanne',
-            path: 'profile-5.jpeg',
-            time: '2:00 PM',
-            preview: 'Wasup for the third time like is you bling bitch',
-            messages: [
-                {
-                    fromUserId: 0,
-                    toUserId: 6,
-                    text: 'Hi',
-                    time: '',
-                },
-                {
-                    fromUserId: 0,
-                    toUserId: 6,
-                    text: 'Uploaded files to server.',
-                    time: '',
-                },
-            ],
-            active: false,
-        },
-        {
-            userId: 7,
-            name: 'Ernest Reeves',
-            path: 'profile-6.jpeg',
-            time: '2:09 PM',
-            preview: 'Wasup for the third time like is you bling bitch',
-            messages: [],
-            active: true,
-        },
-        {
-            userId: 8,
-            name: 'Laurie Fox',
-            path: 'profile-7.jpeg',
-            time: '12:09 PM',
-            preview: 'Wasup for the third time like is you bling bitch',
-            messages: [],
-            active: true,
-        },
-        {
-            userId: 9,
-            name: 'Xavier',
-            path: 'profile-8.jpeg',
-            time: '4:09 PM',
-            preview: 'Wasup for the third time like is you bling bitch',
-            messages: [],
-            active: false,
-        },
-        {
-            userId: 10,
-            name: 'Susan Phillips',
-            path: 'profile-9.jpeg',
-            time: '9:00 PM',
-            preview: 'Wasup for the third time like is you bling bitch',
-            messages: [],
-            active: true,
-        },
-        {
-            userId: 11,
-            name: 'Dale Butler',
-            path: 'profile-10.jpeg',
-            time: '5:09 PM',
-            preview: 'Wasup for the third time like is you bling bitch',
-            messages: [],
-            active: false,
-        },
-        {
-            userId: 12,
-            name: 'Grace Roberts',
-            path: 'user-profile.jpeg',
-            time: '8:01 PM',
-            preview: 'Wasup for the third time like is you bling bitch',
-            messages: [],
-            active: true,
-        },
-    ];
+    contactList: ExtendedContact[] = [];
     searchUser = '';
     textMessage = '';
     selectedUser: any = null;
+    currentSection: string = 'contacts'; // Default section
+    invitations = [
+        {
+            userId: 2,
+            name: 'John Doe',
+            path: 'profile-20.jpeg',
+            time: '1:00 PM',
+            preview: 'Invitation to connect',
+            active: false,
+        },
+        // Add more invitation objects as needed
+    ];
+    currentUser: User | null = null;
 
-    searchUsers() {
-        return this.contactList.filter((d: { name: string }) => {
-            return d.name.toLowerCase().includes(this.searchUser);
+    loadCurrentUser() {
+        of(this.userService.getCurrentUserId()).pipe(
+            map((userId: number | null) => userId)
+        ).subscribe({
+            next: (userId: number | null) => {
+                if (userId !== null) {
+                    this.userService.getUserById(userId).subscribe({
+                        next: (user: User) => {
+                            this.currentUser = user;
+                            this.loadContacts(user.id);
+                            console.log('Current User:', this.currentUser);
+                        },
+                        error: (err: any) => {
+                            console.error('Error fetching user by ID:', err);
+                            this.currentUser = null;
+                        }
+                    });
+                } else {
+                    console.warn('No user ID found in session storage.');
+                    this.currentUser = null;
+                }
+            },
+            error: (err: any) => {
+                console.error('Error fetching current user ID:', err);
+                this.currentUser = null;
+            }
         });
     }
 
-    selectUser(user: any) {
-        this.selectedUser = user;
+    loadContacts(userId: number) {
+        this.contactService.getContactsByUserId(userId).subscribe({
+            next: (contacts: ExtendedContact[]) => {
+                this.contactList = contacts;
+                console.log('Contacts loaded:', this.contactList);
+                this.contactList.forEach(contact => {
+                    const idToFetch = contact.contact_id === userId ? contact.user_id : contact.contact_id;
+                    console.log('Fetching user details for ID:', idToFetch);
+                    this.userService.getUserById(idToFetch).subscribe({
+                        next: (user: User) => {
+                            contact.first_name = user.first_name;
+                            contact.last_name = user.last_name;
+                            contact.profile = typeof user.profile === 'string' ? user.profile : undefined;
+                        },
+                        error: (err: any) => {
+                            console.error('Error fetching user details:', err);
+                        }
+                    });
+                });
+            },
+            error: (err: any) => {
+                console.error('Error fetching contacts:', err);
+            }
+        });
+    }
+
+    searchUsers() {
+        return this.contactList.filter((d: ExtendedContact) => {
+            return d.user_id.toString().includes(this.searchUser.toLowerCase());
+        });
+    }
+
+    selectUser(contact: any) {
+        console.log('Contact selected:', contact);
+        this.selectedUser = contact;
+        console.log('Selected Contact ID:', this.selectedUser.contact_id);
+
         this.isShowUserChat = true;
+        this.loadMessages();
         this.scrollToBottom();
         this.isShowChatMenu = false;
     }
 
     sendMessage() {
-        if (this.textMessage.trim()) {
-            const user: any = this.contactList.find((d: { userId: any }) => d.userId === this.selectedUser.userId);
-            user.messages.push({
-                fromUserId: this.selectedUser.userId,
-                toUserId: 0,
+        if (this.textMessage.trim() && this.currentUser && this.selectedUser) {
+            const newMessage = {
+                from_user_id: this.currentUser.id,
+                to_user_id: this.selectedUser.contact_id,
                 text: this.textMessage,
-                time: 'Just now',
+                time: new Date(),
+                is_read: false
+            };
+
+            this.messageService.createMessage(newMessage).subscribe({
+                next: (message) => {
+                    console.log('Message sent successfully:', message);
+                    this.selectedUser.messages.push(message);
+                    this.textMessage = '';
+                    this.scrollToBottom();
+                },
+                error: (err) => {
+                    console.error('Error sending message:', err);
+                }
             });
-            this.textMessage = '';
-            this.scrollToBottom();
         }
     }
 
@@ -306,6 +166,35 @@ export class ChatComponent {
         if (this.isShowUserChat) {
             setTimeout(() => {
                 this.scrollable.scrollTo({ bottom: 0 });
+            });
+        }
+    }
+
+    showSection(section: string) {
+        this.currentSection = section;
+    }
+
+    acceptInvitation(invitation: any) {
+        // Logic to accept the invitation
+        console.log('Invitation accepted:', invitation);
+        // Optionally, move the invitation to contacts
+    }
+
+    loadMessages() {
+        if (this.selectedUser && this.currentUser) {
+            const contactId = this.selectedUser.contact_id === this.currentUser.id ? this.selectedUser.user_id : this.selectedUser.contact_id;
+            
+            console.log('Login User ID:', this.currentUser.id);
+            console.log('Selected Contact ID:', contactId);
+
+            this.messageService.getMessagesBetweenUsers(this.currentUser.id, contactId).subscribe({
+                next: (messages) => {
+                    this.selectedUser.messages = messages;
+                    console.log('Messages for selected contact:', messages);
+                },
+                error: (err) => {
+                    console.error('Error fetching messages:', err);
+                }
             });
         }
     }
