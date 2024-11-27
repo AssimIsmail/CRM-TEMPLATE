@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { toggleAnimation } from 'src/app/shared/animations';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { Store } from '@ngrx/store';
@@ -9,6 +9,7 @@ import { of } from 'rxjs';
 import { ContactService } from 'src/app/service/contact.service';
 import { Contact } from '../models/contact';
 import { MessageService } from 'src/app/service/message.service';
+import { io } from 'socket.io-client';
 
 // Extend the Contact interface
 interface ExtendedContact extends Contact {
@@ -21,7 +22,9 @@ interface ExtendedContact extends Contact {
     templateUrl: './chat.html',
     animations: [toggleAnimation],
 })
-export class ChatComponent {
+export class ChatComponent implements OnInit, OnDestroy {
+    private socket: any;
+
     constructor(
         public storeData: Store<any>,
         private userService: UserService,
@@ -65,6 +68,23 @@ export class ChatComponent {
         // Add more invitation objects as needed
     ];
     currentUser: User | null = null;
+
+    ngOnInit() {
+        this.socket = io('http://localhost:8081');
+
+        this.socket.on('receiveMessage', (message: any) => {
+            if (this.selectedUser && this.selectedUser.contact_id === message.to_user_id || this.selectedUser.contact_id === message.from_user_id) {
+                this.selectedUser.messages.push(message);
+                this.scrollToBottom();
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        if (this.socket) {
+            this.socket.disconnect();
+        }
+    }
 
     loadCurrentUser() {
         of(this.userService.getCurrentUserId()).pipe(
@@ -140,9 +160,11 @@ export class ChatComponent {
 
     sendMessage() {
         if (this.textMessage.trim() && this.currentUser && this.selectedUser) {
+            const recipientId = this.selectedUser.contact_id === this.currentUser.id ? this.selectedUser.user_id : this.selectedUser.contact_id;
+
             const newMessage = {
                 from_user_id: this.currentUser.id,
-                to_user_id: this.selectedUser.contact_id,
+                to_user_id: recipientId,
                 text: this.textMessage,
                 time: new Date(),
                 is_read: false
@@ -154,6 +176,8 @@ export class ChatComponent {
                     this.selectedUser.messages.push(message);
                     this.textMessage = '';
                     this.scrollToBottom();
+
+                    this.socket.emit('sendMessage', message);
                 },
                 error: (err) => {
                     console.error('Error sending message:', err);
