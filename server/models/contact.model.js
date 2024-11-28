@@ -27,6 +27,11 @@ const Contact = sequelize.define('Contact', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'pending', // Default status for new contacts
+  },
 }, {
   tableName: 'contacts',
   timestamps: false, // Pas nécessaire ici, sauf si vous voulez suivre des modifications

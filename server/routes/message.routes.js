@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const messageController = require('../controllers/message.controller');
+const messageService = require('../services/message.service');
 
 // Create a new message
 router.post('/', messageController.createMessage);
@@ -18,6 +19,13 @@ router.put('/:id', messageController.updateMessage);
 router.delete('/:id', messageController.deleteMessage);
 
 // Get messages between two users
-router.get('/between/:fromUserId/:toUserId', messageController.getMessagesBetweenUsers);
-
+router.get('/between/:fromUserId/:toUserId', async (req, res) => {
+    try {
+        const { fromUserId, toUserId } = req.params;
+        const messages = await messageService.getMessagesBetweenUsers(fromUserId, toUserId);
+        res.json(messages);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 module.exports = router; 

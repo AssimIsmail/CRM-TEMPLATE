@@ -23,12 +23,13 @@
                     <icon-search />
                 </div>
             </div>
+        
             <div class="flex items-center justify-start space-x-4 text-xs">
-                <button type="button" class="hover:text-primary flex flex-col items-center"(click)="showSection('contacts')" >
+                <button type="button" class="hover:text-primary flex flex-col items-center"(click)="showSection('discussions')" >
                     <icon-messages-dot class="mx-auto mb-1" />
                     <span>Discussions</span>
                 </button>
-                <button type="button" class="hover:text-primary flex flex-col items-center" (click)="showSection('discussions')">
+                <button type="button" class="hover:text-primary flex flex-col items-center" (click)="showSection('contacts')">
                     <icon-user-plus class="mx-auto mb-1" />
                     <span>Contacts</span>
                 </button>
@@ -36,11 +37,15 @@
                     <icon-list-check class="mx-auto mb-1" />
                     <span>Invitations</span>
                 </button>
+                <button type="button" class="hover:text-primary flex flex-col items-center" (click)="showSection('sentInvitations')">
+                    <icon-send class="mx-auto mb-1" />
+                    <span>Invitations envoyées</span>
+                </button>
             </div>
             <div class="h-px w-full border-b border-[#e0e6ed] dark:border-[#1b2e4b]"></div>
             <div class="!mt-0 flex-grow">
                 <ng-scrollbar class="chat-users relative h-full min-h-[100px] space-y-0.5 ltr:-mr-3 rtl:-ml-3 sm:h-[calc(100vh_-_357px)]" appearance="compact">
-                    <ng-container *ngIf="currentSection === 'contacts'">
+                    <ng-container *ngIf="currentSection === 'discussions'">
                         <ng-container *ngFor="let contact of contactList">
                             <button
                                 type="button"
@@ -54,7 +59,9 @@
                                             <img [src]="'http://localhost:8081/' + contact.profile" class="h-12 w-12 rounded-full">
                                             <ng-container *ngIf="contact.contact_id">
                                                 <div class="absolute bottom-0 ltr:right-0 rtl:left-0">
-                                                    <div class="h-4 w-4 rounded-full bg-success"></div>
+                                                    <div class="h-4 w-4 rounded-full bg-success">
+                                                        
+                                                    </div>
                                                 </div>
                                             </ng-container>
                                         </div>
@@ -69,12 +76,35 @@
                                 </div>
                             </button>
                         </ng-container>
+                   
                     </ng-container>
                     <ng-container *ngIf="currentSection === 'invitations'">
-                        <ng-container *ngFor="let invitation of invitations">
+                        <ng-container *ngFor="let invitation of receivedInvitations">
                             <div class="flex items-center justify-between p-2">
-                                <p>{{ invitation.name }}</p>
-                                <button (click)="acceptInvitation(invitation)">Accepter</button>
+                                <div class="flex items-center">
+                                    <img [src]="'http://localhost:8081/' + invitation.profile" alt="{{ invitation.first_name }} Profile" class="h-10 w-10 rounded-full object-cover mr-2">
+                                    <p>{{ invitation.first_name }} {{ invitation.last_name }}</p>
+                                </div>
+                                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" (click)="acceptInvitation(invitation)">Accepter</button>
+                            </div>
+                        </ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="currentSection === 'contacts'">
+                            <div class="relative mt-4">
+                                <input type="email" class="peer form-input ltr:pr-9 rtl:pl-9" placeholder="Inviter par email" [(ngModel)]="inviteEmail" name="inviteEmail" />
+                                <button type="button" class="absolute top-1/2 -translate-y-1/2 hover:text-primary ltr:right-2 rtl:left-2" (click)="inviteContact()">
+                                    <icon-send />
+                                </button>
+                            </div>
+                    </ng-container>
+                    <ng-container *ngIf="currentSection === 'sentInvitations'">
+                        <ng-container *ngFor="let invitation of sentInvitations">
+                            <div class="flex items-center justify-between p-2">
+                                <div class="flex items-center">
+                                    <img [src]="'http://localhost:8081/' + invitation.profile" alt="{{ invitation.first_name }} Profile" class="h-10 w-10 rounded-full object-cover mr-2">
+                                    <p>{{ invitation.first_name }} {{ invitation.last_name }}</p>
+                                </div>
+                                <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" (click)="cancelInvitation(invitation)">Annuler</button>
                             </div>
                         </ng-container>
                     </ng-container>

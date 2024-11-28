@@ -67,4 +67,33 @@ export class ContactService {
   getContactsByUserId(userId: number): Observable<Contact[]> {
     return this.http.get<Contact[]>(`${environment.API}/contacts/user/${userId}`, { headers: this.getAuthHeaders() });
   }
+
+  // Invite a contact by email
+  inviteContactByEmail(email: string, currentUserId: number): Observable<Contact> {
+    return this.http.post<Contact>(`${environment.API}/contacts/invite`, { email, currentUserId }, { headers: this.getAuthHeaders() });
+  }
+
+  // Accept a contact invitation
+  acceptContactInvitation(contactId: number): Observable<Contact> {
+    return this.http.post<Contact>(`${environment.API}/contacts/${contactId}/accept`, {}, { headers: this.getAuthHeaders() });
+  }
+
+  // Refuse a contact invitation
+  refuseContactInvitation(contactId: number): Observable<Contact> {
+    return this.http.put<Contact>(`${environment.API}/contacts/${contactId}/refuse`, {}, { headers: this.getAuthHeaders() });
+  }
+
+  // Get received invitations for a user
+  getReceivedInvitations(userId: number): Observable<Contact[]> {
+    return this.http.get<Contact[]>(`${environment.API}/contacts/user/${userId}/received`, { headers: this.getAuthHeaders() });
+  }
+
+  // Get sent invitations for a user
+  getSentInvitations(userId: number): Observable<Contact[]> {
+    return this.http.get<Contact[]>(`${environment.API}/contacts/user/${userId}/sent`, { headers: this.getAuthHeaders() });
+  }
+
+  cancelSentInvitation(invitationId: number): Observable<any> {
+    return this.http.delete<any>(`${environment.API}/contacts/invitations/${invitationId}`);
+  }
 }

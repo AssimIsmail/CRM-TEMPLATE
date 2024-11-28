@@ -17,6 +17,7 @@ export class CentresComponent implements OnInit {
   filteredCentres: Centre[] = [];
   logoFile: File | undefined;
   centreId: number | undefined;
+  currentSection: string = 'discussions';
 
   constructor(private fb: FormBuilder, private centreService: CentreService) {
     this.addCentreForm = this.fb.group({
@@ -152,5 +153,9 @@ export class CentresComponent implements OnInit {
       showConfirmButton: false,
       timer: 3000,
     });
+  }
+
+  showSection(section: string): void {
+    this.currentSection = section;
   }
 }

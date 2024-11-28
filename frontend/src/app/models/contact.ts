@@ -4,4 +4,5 @@ export interface Contact {
   contact_id: number;
   last_message_time?: Date; // Optional, as it might not always be set
   last_message_preview?: string; // Optional, as it might not always be set
+  status: string;
 }

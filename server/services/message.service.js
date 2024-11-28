@@ -32,7 +32,7 @@ async function deleteMessage(id) {
 
 async function getMessagesBetweenUsers(fromUserId, toUserId) {
     try {
-        return await Message.findAll({
+        const messages = await Message.findAll({
             where: {
                 [Op.or]: [
                     { from_user_id: fromUserId, to_user_id: toUserId },
@@ -41,6 +41,7 @@ async function getMessagesBetweenUsers(fromUserId, toUserId) {
             },
             order: [['time', 'ASC']]
         });
+        return messages || [];
     } catch (error) {
         console.error('Database query error:', error); // Log the error
         throw new Error('Database query failed');

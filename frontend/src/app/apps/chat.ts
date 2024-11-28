@@ -68,9 +68,31 @@ export class ChatComponent implements OnInit, OnDestroy {
         // Add more invitation objects as needed
     ];
     currentUser: User | null = null;
+    inviteEmail: string = '';
+    inviteMessage: string = '';
+    receivedInvitations: ExtendedContact[] = [];
+    sentInvitations: ExtendedContact[] = [];
 
     ngOnInit() {
         this.socket = io('http://localhost:8081');
+
+        const userId = this.userService.getCurrentUserId();
+        if (userId !== null) {
+            this.userService.getUserById(userId).subscribe({
+                next: (user: User) => {
+                    this.currentUser = user;
+                    console.log('Current User:', this.currentUser);
+                    this.loadReceivedInvitations();
+                },
+                error: (err: any) => {
+                    console.error('Error fetching user by ID:', err);
+                    this.currentUser = null;
+                }
+            });
+        } else {
+            console.warn('No user ID found in session storage.');
+            this.currentUser = null;
+        }
 
         this.socket.on('receiveMessage', (message: any) => {
             if (this.selectedUser && this.selectedUser.contact_id === message.to_user_id || this.selectedUser.contact_id === message.from_user_id) {
@@ -78,6 +100,8 @@ export class ChatComponent implements OnInit, OnDestroy {
                 this.scrollToBottom();
             }
         });
+
+        this.loadSentInvitations();
     }
 
     ngOnDestroy() {
@@ -88,7 +112,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     loadCurrentUser() {
         of(this.userService.getCurrentUserId()).pipe(
-            map((userId: number | null) => userId)
+            map((userId: number | null) => userId!)
         ).subscribe({
             next: (userId: number | null) => {
                 if (userId !== null) {
@@ -118,8 +142,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     loadContacts(userId: number) {
         this.contactService.getContactsByUserId(userId).subscribe({
             next: (contacts: ExtendedContact[]) => {
-                this.contactList = contacts;
-                console.log('Contacts loaded:', this.contactList);
+                this.contactList = contacts.filter(contact => contact.status === 'accepted');
+                console.log('Accepted Contacts loaded:', this.contactList);
                 this.contactList.forEach(contact => {
                     const idToFetch = contact.contact_id === userId ? contact.user_id : contact.contact_id;
                     console.log('Fetching user details for ID:', idToFetch);
@@ -194,14 +218,43 @@ export class ChatComponent implements OnInit, OnDestroy {
         }
     }
 
-    showSection(section: string) {
+    showSection(section: string): void {
         this.currentSection = section;
+        if (section === 'sentInvitations') {
+            this.loadSentInvitations();
+        }
     }
 
-    acceptInvitation(invitation: any) {
-        // Logic to accept the invitation
-        console.log('Invitation accepted:', invitation);
-        // Optionally, move the invitation to contacts
+    acceptInvitation(invitation: ExtendedContact) {
+        if (invitation.id !== undefined) {
+            this.contactService.acceptContactInvitation(invitation.id).subscribe({
+                next: (updatedContact) => {
+                    console.log('Invitation accepted:', updatedContact);
+                    this.receivedInvitations = this.receivedInvitations.filter(inv => inv.id !== invitation.id);
+                    this.contactList.push(updatedContact);
+
+                    // Fetch and update user details immediately
+                    const userIdToFetch = updatedContact.user_id;
+                    this.userService.getUserById(userIdToFetch).subscribe({
+                        next: (user: User) => {
+                            const extendedContact = updatedContact as ExtendedContact;
+                            extendedContact.first_name = user.first_name;
+                            extendedContact.last_name = user.last_name;
+                            extendedContact.profile = typeof user.profile === 'string' ? user.profile : undefined;
+                            console.log('Updated Contact with User Details:', extendedContact);
+                        },
+                        error: (err: any) => {
+                            console.error('Error fetching user details:', err);
+                        }
+                    });
+                },
+                error: (err) => {
+                    console.error('Error accepting invitation:', err);
+                }
+            });
+        } else {
+            console.warn('Invitation ID is undefined:', invitation);
+        }
     }
 
     loadMessages() {
@@ -220,6 +273,105 @@ export class ChatComponent implements OnInit, OnDestroy {
                     console.error('Error fetching messages:', err);
                 }
             });
+        }
+    }
+
+    inviteContact() {
+        if (this.inviteEmail.trim()) {
+            this.contactService.inviteContactByEmail(this.inviteEmail, this.currentUser?.id || 0).subscribe({
+                next: (contact: Contact) => {
+                    console.log('Invitation sent successfully:', contact);
+                    this.inviteMessage = 'Invitation envoyée avec succès !';
+                    this.inviteEmail = ''; // Clear the input after sending
+                },
+                error: (err: any) => {
+                    console.error('Error sending invitation:', err);
+                    this.inviteMessage = 'Erreur lors de l\'envoi de l\'invitation.';
+                }
+            });
+        }
+    }
+
+    loadReceivedInvitations() {
+        if (this.currentUser) {
+            console.log('Current User ID:', this.currentUser.id);
+            this.contactService.getReceivedInvitations(this.currentUser.id).subscribe({
+                next: (invitations: ExtendedContact[]) => {
+                    this.receivedInvitations = invitations;
+                    console.log('Received Invitations:', this.receivedInvitations);
+
+                    this.receivedInvitations.forEach(invitation => {
+                        const userIdToFetch = invitation.user_id;
+                        console.log('Fetching user details for ID:', userIdToFetch);
+                        this.userService.getUserById(userIdToFetch).subscribe({
+                            next: (user: User) => {
+                                invitation.first_name = user.first_name;
+                                invitation.last_name = user.last_name;
+                                invitation.profile = typeof user.profile === 'string' ? user.profile : undefined;
+                                console.log('Updated Invitation:', invitation);
+                            },
+                            error: (err: any) => {
+                                console.error('Error fetching user details:', err);
+                            }
+                        });
+                    });
+
+                    console.log('Final Received Invitations with User Details:', this.receivedInvitations);
+                },
+                error: (err: any) => {
+                    console.error('Error fetching received invitations:', err);
+                }
+            });
+        } else {
+            console.warn('Current user is not defined.');
+        }
+    }
+
+    loadSentInvitations() {
+        if (this.currentUser) {
+            this.contactService.getSentInvitations(this.currentUser.id).subscribe({
+                next: (invitations: ExtendedContact[]) => {
+                    this.sentInvitations = invitations;
+                    console.log('Sent Invitations:', this.sentInvitations);
+
+                    this.sentInvitations.forEach(invitation => {
+                        const userIdToFetch = invitation.user_id;
+                        console.log('Fetching user details for ID:', userIdToFetch);
+                        this.userService.getUserById(userIdToFetch).subscribe({
+                            next: (user: User) => {
+                                invitation.first_name = user.first_name;
+                                invitation.last_name = user.last_name;
+                                invitation.profile = typeof user.profile === 'string' ? user.profile : undefined;
+                                console.log('Updated Sent Invitation:', invitation);
+                            },
+                            error: (err: any) => {
+                                console.error('Error fetching user details:', err);
+                            }
+                        });
+                    });
+                },
+                error: (err: any) => {
+                    console.error('Error fetching sent invitations:', err);
+                }
+            });
+        } else {
+            console.warn('Current user is not defined.');
+        }
+    }
+
+    cancelInvitation(invitation: ExtendedContact) {
+        if (invitation.id !== undefined) {
+            this.contactService.cancelSentInvitation(invitation.id).subscribe({
+                next: () => {
+                    console.log('Invitation annulée:', invitation);
+                    this.loadSentInvitations();
+                },
+                error: (err) => {
+                    console.error('Erreur lors de l\'annulation de l\'invitation:', err);
+                }
+            });
+        } else {
+            console.warn('Invitation ID is undefined:', invitation);
         }
     }
 }
