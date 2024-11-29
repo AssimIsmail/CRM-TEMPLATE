@@ -26,7 +26,7 @@ import { QuestionnaireComponent } from './questionnaire';
 import { CalendarautresComponent } from './calendarautres';
 
 const routes: Routes = [
-    { path: 'apps/chat', component: ChatComponent, data: { title: 'Chat' } },
+    { path: 'apps/chat', component: ChatComponent, data: { title: 'Discussion' } },
     { path: 'apps/mailbox', component: MailboxComponent, data: { title: 'Mailbox' } },
     { path: 'apps/scrumboard', component: ScrumboardComponent, data: { title: 'Scrumboard' } },
     { path: 'apps/contacts', component: ContactsComponent, data: { title: 'Contacts' } },
@@ -35,14 +35,14 @@ const routes: Routes = [
     { path: 'apps/status', component: StatusComponent, data: { title: 'Status' } },
     { path: 'apps/users', component: UsersComponent, data: { title: 'Users' } },
     { path: 'apps/offres', component: OffresComponent, data: { title: 'Offres' } },
-    { path: 'apps/notes', component: NotesComponent, data: { title: 'Notes' } },
+    { path: 'apps/notes', component: NotesComponent, data: { title: 'Remarques' } },
     { path: 'apps/documentation', component: DocumentationComponent, data: { title: 'Documentation' } },
     { path: 'apps/questionnaire', component: QuestionnaireComponent, data: { title: 'Questionnaire' } },
-    { path: 'apps/todolist', component: TodolistComponent, data: { title: 'Todolist' } },
+    { path: 'apps/todolist', component: TodolistComponent, data: { title: 'Tache' } },
     { path: 'apps/invoice/list', component: InvoiceListComponent, data: { title: 'Invoice List' } },
-    { path: 'apps/invoice/preview', component: InvoicePreviewComponent, data: { title: 'Invoice Preview' } },
-    { path: 'apps/invoice/add', component: InvoiceAddComponent, data: { title: 'Invoice Add' } },
-    { path: 'apps/invoice/edit/:id', component: InvoiceEditComponent, data: { title: 'Invoice Edit' } },
+    { path: 'apps/invoice/preview', component: InvoicePreviewComponent, data: { title: 'Observer offre' } },
+    { path: 'apps/invoice/add', component: InvoiceAddComponent, data: { title: 'Ajouter Offre' } },
+    { path: 'apps/invoice/edit/:id', component: InvoiceEditComponent, data: { title: 'Modifier Offre' } },
     { path: 'apps/calendar', component: CalendarComponent, data: { title: 'Calendar' } },
     { path: 'apps/calendarautres', component: CalendarautresComponent, data: { title: 'Calendarautres' } },
     { path: 'apps/invoice/preview/:id', component: InvoicePreviewComponent, data: { title: 'Invoice Preview' } },

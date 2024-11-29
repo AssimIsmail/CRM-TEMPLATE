@@ -47,10 +47,10 @@ export const routes: Routes = [
         component: AppLayout,
         children: [
             // dashboard
-            { path: 'accueil', component: IndexComponent, data: { title: 'Sales Admin' } },
-            { path: 'analytics', component: AnalyticsComponent, data: { title: 'Analytics Admin' } },
-            { path: 'finance', component: FinanceComponent, data: { title: 'Finance Admin' } },
-            { path: 'crypto', component: CryptoComponent, data: { title: 'Crypto Admin' } },
+            { path: 'accueil', component: IndexComponent, data: { title: 'Accueil' } },
+            { path: 'analytics', component: AnalyticsComponent, data: { title: 'Analytics' } },
+            { path: 'finance', component: FinanceComponent, data: { title: 'Finance' } },
+            { path: 'crypto', component: CryptoComponent, data: { title: 'Crypto' } },
 
             // widgets
             { path: 'widgets', component: WidgetsComponent, data: { title: 'Widgets' } },

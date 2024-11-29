@@ -5,6 +5,8 @@ import { Router, NavigationEnd } from '@angular/router';
 import { AppService } from '../service/app.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
+import { UserService } from '../service/user.service';
+import { User } from '../models/user';
 
 @Component({
     selector: 'header',
@@ -44,34 +46,8 @@ export class HeaderComponent {
             message: 'Your OS has been updated.',
             time: '1hr',
         },
-        {
-            id: 2,
-            image: this.sanitizer.bypassSecurityTrustHtml(
-                `<span class="grid place-content-center w-9 h-9 rounded-full bg-info-light dark:bg-info text-info dark:text-info-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>`,
-            ),
-            title: 'Did you know?',
-            message: 'You can switch between artboards.',
-            time: '2hr',
-        },
-        {
-            id: 3,
-            image: this.sanitizer.bypassSecurityTrustHtml(
-                `<span class="grid place-content-center w-9 h-9 rounded-full bg-danger-light dark:bg-danger text-danger dark:text-danger-light"> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`,
-            ),
-            title: 'Something went wrong!',
-            message: 'Send Reposrt',
-            time: '2days',
-        },
-        {
-            id: 4,
-            image: this.sanitizer.bypassSecurityTrustHtml(
-                `<span class="grid place-content-center w-9 h-9 rounded-full bg-warning-light dark:bg-warning text-warning dark:text-warning-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">    <circle cx="12" cy="12" r="10"></circle>    <line x1="12" y1="8" x2="12" y2="12"></line>    <line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>`,
-            ),
-            title: 'Warning',
-            message: 'Your password strength is low.',
-            time: '5days',
-        },
     ];
+    currentUser: User | null = null;
 
     constructor(
         public translate: TranslateService,
@@ -79,8 +55,10 @@ export class HeaderComponent {
         public router: Router,
         private appSetting: AppService,
         private sanitizer: DomSanitizer,
+        private userService: UserService,
     ) {
         this.initStore();
+        this.loadCurrentUser();
     }
     async initStore() {
         this.storeData
@@ -88,6 +66,15 @@ export class HeaderComponent {
             .subscribe((d) => {
                 this.store = d;
             });
+    }
+
+    loadCurrentUser() {
+        const userId = this.userService.getCurrentUserId();
+        if (userId !== null) {
+            this.userService.getUserById(userId).subscribe(user => {
+                this.currentUser = user;
+            });
+        }
     }
 
     ngOnInit() {
