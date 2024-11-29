@@ -1,37 +1,124 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { toggleAnimation } from 'src/app/shared/animations';
-import { ClientService } from 'src/app/service/client.service';
-import { StatusService } from './service/status.service';
-import { Status } from './models/status.model';
+import { ClientService } from './service/client.service';
+
 @Component({
     templateUrl: './analytics.html',
     animations: [toggleAnimation],
 })
-export class AnalyticsComponent {
+export class AnalyticsComponent implements OnInit, AfterViewInit {
     store: any;
     totalVisit: any;
     paidVisit: any;
     uniqueVisitor: any;
-    followers: any;
-    referral: any;
-    engagement: any;
     isLoading = true;
-    totalVisitCount: number = 0;
-    totalPaidVisits: number = 0;
-    statusCounts: { [key: string]: number } = {};
-    uniqueVisitorData: number[] = [];
-    statusData: { name: string, data: number[], color: string }[] = [];
-    closedClientPercentage: number = 0;
+    totalClients: number = 0;
+    closedClientsCount: number = 0;
+    dailyClientsCount: { date: string, count: number }[] = [];
+    dailyClosedCounts: number[] = [];
+    dailyCounts: number[] = [];
+    closedClientsPercentage: number = 0;
+    openClientsPercentage: number = 0;
+    monthlyClientsStatus: { name: string, data: number[],color: string }[] = [];
+    monthlyClientsStatusnamedata: { name: string, data: number[] }[] = [];
+    monthlyClientsStatuscolor: string[] = [];
 
-    constructor(public storeData: Store<any>, private clientService: ClientService, private statusService: StatusService) {
+    constructor(public storeData: Store<any>, private clientService: ClientService) {
         this.initStore();
         this.isLoading = false;
-        this.loadDailyClientCount();
-        this.loadClientsWithStatusCloseCount(); 
-        this.calculateClosedClientPercentage();
-        this.loadAllClients();
-        this.loadClientsCountByStatusAndMonth();
+    }
+
+    ngOnInit() {
+        this.loadTotalClients();
+        this.loadClosedClients();
+        this.loadDailyClientsCount();
+        this.loadDailyClosedClientsCount();
+        this.loadClientsCountByStatusMonthly();
+    }
+
+    ngAfterViewInit() {
+        // Trigger a resize event to ensure charts are rendered correctly
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 100);
+    }
+
+    loadTotalClients() {
+        this.clientService.getTotalClientsCount().subscribe(
+            (response) => {
+                this.totalClients = response.total;
+                this.calculateClientPercentages();
+            },
+            (error) => {
+                console.error('Erreur lors de la récupération du nombre total de clients:', error);
+            }
+        );
+    }
+
+    loadClosedClients() {
+        this.clientService.getClosedClientsCount().subscribe(
+            (response) => {
+                this.closedClientsCount = response.total;
+                this.calculateClientPercentages();
+            },
+            (error) => {
+                console.error('Erreur lors de la récupération du nombre de clients fermés:', error);
+            }
+        );
+
+
+
+    }
+
+    loadDailyClientsCount() {
+        this.clientService.getDailyClientsCount().subscribe(
+            (response) => {
+                this.dailyClientsCount = response;
+                this.dailyCounts = this.dailyClientsCount.map(item => item.count);
+                this.totalVisit.series=[{
+                    data:this.dailyCounts
+                }
+
+                ]
+            },
+            (error) => {
+                console.error('Erreur lors de la récupération du nombre de clients ajoutés chaque jour:', error);
+            }
+        );
+    }
+
+    loadDailyClosedClientsCount() {
+        this.clientService.getDailyClosedClientsCount().subscribe(
+            (response) => {
+                this.dailyClosedCounts = response.map(item => item.count);
+                this.paidVisit.series=[{
+                    data:this.dailyClosedCounts
+                }
+
+                ]
+                // Vous pouvez utiliser ces données pour un autre graphique ou traitement
+            },
+            (error) => {
+                console.error('Erreur lors de la récupération du nombre de clients fermés chaque jour:', error);
+            }
+        );
+    }
+
+    loadClientsCountByStatusMonthly() {
+        this.clientService.getClientsCountByStatusMonthly().subscribe(
+            (response) => {
+                this.monthlyClientsStatus = response;
+                console.log('Monthly Clients Status:', this.monthlyClientsStatus);
+                this.monthlyClientsStatusnamedata = response.map(({ name, data }) => ({ name, data }));
+                this.monthlyClientsStatuscolor = response.map(({ color }) => color);
+                this.uniqueVisitor.series=this.monthlyClientsStatusnamedata;
+                this.uniqueVisitor.colors=this.monthlyClientsStatuscolor;
+            },
+            (error) => {
+                console.error('Erreur lors de la récupération du nombre de clients par statut mensuel:', error);
+            }
+        );
     }
 
     async initStore() {
@@ -43,79 +130,28 @@ export class AnalyticsComponent {
                 const hasChangeMenu = this.store?.menu !== d?.menu;
                 const hasChangeSidebar = this.store?.sidebar !== d?.sidebar;
 
+
                 this.store = d;
 
                 if (hasChangeTheme || hasChangeLayout || hasChangeMenu || hasChangeSidebar) {
                     if (this.isLoading || hasChangeTheme) {
-                        this.initCharts();
+                        this.initCharts(); //init charts
                     } else {
                         setTimeout(() => {
-                            this.initCharts(); 
+                            this.initCharts(); // refresh charts
                         }, 300);
                     }
                 }
             });
     }
 
-    calculateClosedClientPercentage() {
-        if (this.totalVisitCount > 0) {
-            this.closedClientPercentage = (this.totalPaidVisits / this.totalVisitCount) * 100;
-        } else {
-            this.closedClientPercentage = 0;
-        }
-    }
-
-    loadDailyClientCount() {
-        this.clientService.getDailyClientCount().subscribe((data) => {
-            this.totalVisit.series = [
-                {
-                    data: data,
-                },
-            ];
-            this.totalVisitCount = data.reduce((acc, val) => acc + val, 0); 
-            this.calculateClosedClientPercentage();
-        });
-    }
-
-    loadClientsWithStatusCloseCount() {
-        this.clientService.getClientsWithStatusCloseCount().subscribe((data) => {
-            this.paidVisit.series = [
-                {
-                    data: data,
-                },
-            ];
-            this.totalPaidVisits = data.reduce((acc, val) => acc + val, 0); 
-            this.calculateClosedClientPercentage();
-        });
-    }
-
-    loadAllClients() {
-        this.clientService.getAllClients().subscribe((clients) => {
-            const numberOfClients = clients.length;  
-            console.log('Number of Clients:', numberOfClients);
-            return numberOfClients;  
-        });
-    }
-
-    loadClientsCountByStatusAndMonth() {
-        this.clientService.getClientsCountByStatusAndMonth().subscribe((data) => {
-            this.uniqueVisitor.series = data.map(item => ({
-                name: item.name,
-                data: new Array(12).fill(0).map((_, index) => {
-                    const monthData = item.data.find((d: [number, number]) => d[0] === index + 1);
-                    return monthData ? monthData[1] : 0;
-                })
-            }));
-            this.uniqueVisitor.xaxis = {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            };
-        });
-    }
-
     initCharts() {
+        console.log('initCharts called');
+        console.log('Data for chart:', this.dailyCounts);
         const isDark = this.store.theme === 'dark' || this.store.isDarkMode ? true : false;
         const isRtl = this.store.rtlClass === 'rtl' ? true : false;
 
+        // statistics
         this.totalVisit = {
             chart: {
                 height: 58,
@@ -135,7 +171,7 @@ export class AnalyticsComponent {
                 curve: 'smooth',
                 width: 2,
             },
-            colors: ['#009688'],
+            colors: isDark ? ['#ffffff'] : ['#009688'],
             grid: {
                 padding: {
                     top: 5,
@@ -163,7 +199,7 @@ export class AnalyticsComponent {
             ],
         };
 
-        //paid visit
+        // paid visit
         this.paidVisit = {
             chart: {
                 height: 58,
@@ -183,7 +219,7 @@ export class AnalyticsComponent {
                 curve: 'smooth',
                 width: 2,
             },
-            colors: ['#e2a03f'],
+            colors: isDark ? ['#ffffff'] : ['#e2a03f'],
             grid: {
                 padding: {
                     top: 5,
@@ -228,7 +264,7 @@ export class AnalyticsComponent {
                 width: 2,
                 colors: ['transparent'],
             },
-            colors: ['#5c1ac3', '#ffbb44'],
+            colors: isDark ? ['#ffffff', '#cccccc'] : ['#5c1ac3', '#ffbb44'],
             dropShadow: {
                 enabled: true,
                 blur: 3,
@@ -297,182 +333,20 @@ export class AnalyticsComponent {
             },
             series: [
                 {
-                    name: 'Direct',
-                    data: [58, 44, 55, 57, 56, 61, 58, 63, 60, 66, 56, 63],
+                    name: '',
+                    data: [],
                 },
-                {
-                    name: 'Organic',
-                    data: [91, 76, 85, 101, 98, 87, 105, 91, 114, 94, 66, 70],
-                },
+
             ],
         };
+    }
 
-        // followers
-        this.followers = {
-            chart: {
-                height: 176,
-                type: 'area',
-                fontFamily: 'Nunito, sans-serif',
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 2,
-            },
-            colors: ['#4361ee'],
-            grid: {
-                padding: {
-                    top: 5,
-                },
-            },
-            yaxis: {
-                show: false,
-            },
-            tooltip: {
-                x: {
-                    show: false,
-                },
-                y: {
-                    title: {
-                        formatter: (val: any) => {
-                            return '';
-                        },
-                    },
-                },
-            },
-            fill: isDark
-                ? null
-                : {
-                      type: 'gradient',
-                      gradient: {
-                          type: 'vertical',
-                          shadeIntensity: 1,
-                          inverseColors: !1,
-                          opacityFrom: 0.3,
-                          opacityTo: 0.05,
-                          stops: [100, 100],
-                      },
-                  },
-            series: [
-                {
-                    data: [38, 60, 38, 52, 36, 40, 28],
-                },
-            ],
-        };
+    calculateClientPercentages() {
+        if (this.totalClients > 0) {
+            this.closedClientsPercentage = (this.closedClientsCount / this.totalClients) * 100;
+            this.openClientsPercentage = 100 - this.closedClientsPercentage;
 
-        // referral
-        this.referral = {
-            chart: {
-                height: 176,
-                type: 'area',
-                fontFamily: 'Nunito, sans-serif',
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 2,
-            },
-            colors: ['#e7515a'],
-            grid: {
-                padding: {
-                    top: 5,
-                },
-            },
-            yaxis: {
-                show: false,
-            },
-            tooltip: {
-                x: {
-                    show: false,
-                },
-                y: {
-                    title: {
-                        formatter: (val: any) => {
-                            return '';
-                        },
-                    },
-                },
-            },
-            fill: isDark
-                ? null
-                : {
-                      type: 'gradient',
-                      gradient: {
-                          type: 'vertical',
-                          shadeIntensity: 1,
-                          inverseColors: !1,
-                          opacityFrom: 0.3,
-                          opacityTo: 0.05,
-                          stops: [100, 100],
-                      },
-                  },
-            series: [
-                {
-                    data: [60, 28, 52, 38, 40, 36, 38],
-                },
-            ],
-        };
 
-        // engagement
-        this.engagement = {
-            chart: {
-                height: 176,
-                type: 'area',
-                fontFamily: 'Nunito, sans-serif',
-                sparkline: {
-                    enabled: true,
-                },
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 2,
-            },
-            colors: ['#1abc9c'],
-            grid: {
-                padding: {
-                    top: 5,
-                },
-            },
-            yaxis: {
-                show: false,
-            },
-            tooltip: {
-                x: {
-                    show: false,
-                },
-                y: {
-                    title: {
-                        formatter: (val: any) => {
-                            return '';
-                        },
-                    },
-                },
-            },
-            fill: isDark
-                ? null
-                : {
-                      type: 'gradient',
-                      gradient: {
-                          type: 'vertical',
-                          shadeIntensity: 1,
-                          inverseColors: !1,
-                          opacityFrom: 0.3,
-                          opacityTo: 0.05,
-                          stops: [100, 100],
-                      },
-                  },
-            series: [
-                {
-                    name: 'Sales',
-                    data: [28, 50, 36, 60, 38, 52, 38],
-                },
-            ],
-        };
-
-     
+        }
     }
 }

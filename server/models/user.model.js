@@ -40,6 +40,15 @@ const User = sequelize.define('User', {
       key: 'id',
     },
   },
+  statut: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  },
+  date_de_dernier_conx: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 }, {
   tableName: 'users',
   timestamps: true,

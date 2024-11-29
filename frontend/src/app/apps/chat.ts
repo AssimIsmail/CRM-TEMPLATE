@@ -55,7 +55,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     searchUser = '';
     textMessage = '';
     selectedUser: any = null;
-    currentSection: string = 'contacts'; // Default section
+    currentSection: string = 'discussions'; // Default section
     invitations = [
         {
             userId: 2,

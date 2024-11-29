@@ -32,13 +32,32 @@ const login = async (email, password) => {
     throw new Error('Mot de passe incorrect');
   }
 
-  // Générer un token
-  const token = jwt.sign({ id: user.id, role: user.role  }, 'votre_clé_secrète', { expiresIn: '1h' }); // Remplacez 'votre_clé_secrète' par votre clé secrète
+  // Mettre à jour le statut et la date de dernière connexion
+  await user.update({
+    statut: true,
+    date_de_dernier_conx: new Date(),
+  });
 
-  return { user, token }; // Retourner l'utilisateur et le token
+  // Générer un token
+  const token = jwt.sign({ id: user.id, role: user.role  }, 'votre_clé_secrète', { expiresIn: '1h' });
+
+  return { user, token };
+};
+
+// Fonction pour déconnecter un utilisateur
+const logout = async (userId) => {
+  const user = await User.findByPk(userId);
+  
+  if (!user) {
+    throw new Error('Utilisateur non trouvé');
+  }
+
+  // Mettre à jour le statut à false
+  await user.update({ statut: false });
 };
 
 module.exports = {
   register,
   login,
+  logout,
 };

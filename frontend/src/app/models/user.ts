@@ -11,6 +11,7 @@ export interface User {
   created_at?: Date;
   updated_at?: Date;
   token?: string;
+  date_de_dernier_conx?: Date;
 }
 
 
@@ -21,11 +22,11 @@ export interface User {
 //         phone: string;       // Use lowercase 'string'
 //         password: string;    // Use lowercase 'string'
 //         role?: string;       // Make role optional
-//         profile?: File; 
+//         profile?: File;
 //         centreId?: number;// Make centreId optional
 //         // Add this line
 //       }
-  
+
 
 // export interface Password {
 //   password: string;

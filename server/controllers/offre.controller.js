@@ -62,10 +62,65 @@ const deleteOffre = async (req, res) => {
   }
 };
 
+// Récupérer le nombre total d'offres
+const getTotalOffresCount = async (req, res) => {
+  try {
+    const count = await OffreService.getTotalOffresCount();
+    res.status(200).json({ total: count });
+  } catch (error) {
+    res.status(500).json({ message: 'aucun' });
+  }
+};
+
+// Get the number of offers with a specific status name
+const getOffresCount = async (req, res) => {
+  try {
+    const statusName = req.params.statusName; // Get status name from URL
+    const count = await OffreService.getOffresCount(statusName);
+    res.status(200).json({ total: count });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Récupérer le nombre d'offres ajoutées chaque jour
+const getDailyOffresCount = async (req, res) => {
+  try {
+    const dailyCount = await OffreService.getDailyOffresCount();
+    res.status(200).json(dailyCount);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Récupérer le nombre d'offres fermées chaque jour
+const getDailyClosedOffresCount = async (req, res) => {
+  try {
+    const dailyClosedCount = await OffreService.getDailyClosedOffresCount();
+    res.status(200).json(dailyClosedCount);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getClientsCountByStatusMonthly = async (req, res) => {
+  try {
+    const data = await OffreService.getClientsCountByStatusMonthly();
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAllOffres,
   getOffreById,
   createOffre,
   updateOffre,
   deleteOffre,
+  getTotalOffresCount,
+  getOffresCount,
+  getDailyOffresCount,
+  getDailyClosedOffresCount,
+  getClientsCountByStatusMonthly,
 };

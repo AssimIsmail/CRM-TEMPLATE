@@ -86,23 +86,39 @@ export class ClientService {
       headers: this.getAuthHeaders(),
     });
   }
-  getClientsWithStatusCloseCount(): Observable<number[]> {
-    return this.http.get<number[]>(`${environment.API}/offres/status/close/daily-count`, {
-        headers: this.getAuthHeaders(),
-    });
-}
-  getClientsWithStatusDailyCount(statusName: string): Observable<number[]> {
-    return this.http.get<number[]>(`${environment.API}/offres/status/${statusName}/daily-count`, {
+
+
+  // Method to get the total number of clients
+  getTotalClientsCount(): Observable<{ total: number }> {
+    return this.http.get<{ total: number }>(`${environment.API}/offres/total/count`, {
       headers: this.getAuthHeaders(),
     });
   }
-  getDailyClientCount(): Observable<number[]> {
-    return this.http.get<number[]>(`${environment.API}/offres/daily-count`, {
+
+  // Method to get the number of clients with status 'close'
+  getClosedClientsCount(): Observable<{ total: number }> {
+    return this.http.get<{ total: number }>(`${environment.API}/offres/close/count`, {
       headers: this.getAuthHeaders(),
     });
   }
-  getClientsCountByStatusAndMonth(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.API}/offres/status-monthly-count`, {
+
+  // Récupérer le nombre de clients ajoutés chaque jour
+  getDailyClientsCount(): Observable<{ date: string, count: number }[] > {
+    return this.http.get<{ date: string, count: number }[] >(`${environment.API}/offres/daily/count`, {
+      headers: this.getAuthHeaders(),
+    });
+  }
+
+  // Récupérer le nombre de clients fermés chaque jour
+  getDailyClosedClientsCount(): Observable<{ date: string, count: number }[]> {
+    return this.http.get<{ date: string, count: number }[]>(`${environment.API}/offres/daily/closed/count`, {
+      headers: this.getAuthHeaders(),
+    });
+  }
+
+  // Method to get the number of clients by status for each month
+  getClientsCountByStatusMonthly(): Observable<{ name: string,  data: number[],color: string }[]> {
+    return this.http.get<{ name: string,  data: number[],color: string }[]>(`${environment.API}/offres/status/monthly/count`, {
       headers: this.getAuthHeaders(),
     });
   }

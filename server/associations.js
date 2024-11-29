@@ -55,7 +55,8 @@ Offre.belongsTo(Project, { foreignKey: 'projectId', as: 'project' });
 // A Status can have many Offres
 Status.hasMany(Offre, { foreignKey: 'statusId', as: 'offres' });
 // An Offre has a Status
-Offre.belongsTo(Status, { foreignKey: 'statusId', as: 'status' });
+//Offre.belongsTo(Status, { foreignKey: 'statusId', as: 'status' });
+Offre.belongsTo(Status, { as: 'statusAlias', foreignKey: 'statusId' });
 
 // New associations for prospecteur and vendeur
 User.hasMany(Offre, { foreignKey: 'prospecteurId', as: 'prospectedOffres' });
